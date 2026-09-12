@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { TopBar } from "./top-bar";
 import { DashboardTabs } from "./dashboard-tabs";
 import { cn } from "@/lib/utils";
@@ -14,11 +15,18 @@ export function AppShell({
   children,
   tabs = false,
   className,
+  title = "Fathom",
 }: {
   children: React.ReactNode;
   tabs?: boolean;
   className?: string;
+  title?: string;
 }) {
+  // The real app titles every page "Fathom" (verified on the auth pages).
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+
   return (
     <div className="flex min-h-screen flex-col bg-app-bg text-off-white">
       <TopBar />

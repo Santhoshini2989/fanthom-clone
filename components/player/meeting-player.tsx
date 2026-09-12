@@ -213,12 +213,12 @@ export function MeetingPlayer({
             {playback.playing ? <Pause className="size-4" fill="currentColor" /> : <Play className="size-4" fill="currentColor" />}
           </button>
         </Tooltip>
-        <Tooltip label="Back 10s (←)">
+        <Tooltip label="Back 10s (←)" className="hidden sm:inline-flex">
           <button type="button" onClick={() => playback.seekBy(-10)} aria-label="Back 10 seconds" className="flex size-7 items-center justify-center rounded text-white/70 hover:bg-white/10">
             <RotateCcw className="size-3.5" />
           </button>
         </Tooltip>
-        <Tooltip label="Forward 10s (→)">
+        <Tooltip label="Forward 10s (→)" className="hidden sm:inline-flex">
           <button type="button" onClick={() => playback.seekBy(10)} aria-label="Forward 10 seconds" className="flex size-7 items-center justify-center rounded text-white/70 hover:bg-white/10">
             <RotateCw className="size-3.5" />
           </button>
@@ -240,7 +240,7 @@ export function MeetingPlayer({
           />
         </div>
 
-        <span className="w-[62px] shrink-0 font-inter text-[12px] tabular-nums text-white/85">
+        <span className="w-[46px] shrink-0 font-inter sm:w-[62px] text-[12px] tabular-nums text-white/85">
           {formatClock(playback.time)}
         </span>
 
@@ -266,7 +266,7 @@ export function MeetingPlayer({
             if (e.key === "ArrowLeft") playback.seekBy(-5);
             if (e.key === "ArrowRight") playback.seekBy(5);
           }}
-          className="relative h-5 flex-1 cursor-pointer"
+          className="relative h-5 min-w-[80px] flex-1 cursor-pointer"
         >
           <div className="absolute inset-x-0 top-1/2 h-[5px] -translate-y-1/2 rounded-full bg-white/25">
             <div className="h-full rounded-full bg-fathom" style={{ width: `${pct}%` }} />

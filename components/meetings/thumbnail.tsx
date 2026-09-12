@@ -97,8 +97,8 @@ function Tile({ color, name, big, small, muted }: { color: string; name: string;
     >
       <span
         className={cn(
-          "flex items-center justify-center rounded-full font-semibold text-white/90",
-          big ? "size-[38%] text-[clamp(10px,3vw,28px)]" : small ? "size-[46%] text-[9px]" : "size-[42%] text-[clamp(8px,1.6vw,16px)]",
+          "flex aspect-square items-center justify-center rounded-full font-semibold text-white/90",
+          big ? "w-[24%] text-[clamp(10px,3vw,28px)]" : small ? "w-[46%] text-[9px]" : "w-[30%] text-[clamp(8px,1.6vw,16px)]",
         )}
         style={{ backgroundColor: color }}
       >
