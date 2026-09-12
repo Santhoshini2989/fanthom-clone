@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/*
+  Design tokens reverse-engineered from Fathom's public app stylesheet
+  (shadcn-style semantic tokens + brand colors) and sampled app surfaces.
+  See docs/RECON.md §3.
+*/
+:root {
+  --radius: 0.625rem;
+
+  /* light theme (app) */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #171717;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --destructive: #dc2626;
+  --destructive-foreground: #fef2f2;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #737373;
+  --sidebar: #fafafa;
+  --sidebar-border: #e5e5e5;
+
+  /* brand */
+  --accent-fathom: #00beff;
+  --fathom-warn: #ffc82f;
+  --off-white: #faf5f5;
+  --off-black: #191919;
+  --brand-purple: #9600ff;
+  --brand-pink: #ffa8bb;
+  --brand-orange: #f55200;
+  --brand-yellow: #fff58c;
+
+  /* app surfaces (sampled) */
+  --app-bg: #f5f5f5;
+  --app-topbar: #ffffff;
+  --app-card: #ffffff;
+  --app-card-hover: #f0f0f0;
+  --app-menu: #ffffff;
+  --app-menu-hover: #f0f0f0;
+  --app-modal: #ffffff;
+  --app-modal-footer: #f5f5f5;
+  --app-input: #f5f5f5;
+  --app-bubble: #ebebeb;
+  --app-share: #e6f7ff;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #171717;
+  --card-foreground: #fafafa;
+  --popover: #212121;
+  --popover-foreground: #fafafa;
+  --primary: #e5e5e5;
+  --primary-foreground: #171717;
+  --secondary: #171717;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #404040;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+  --destructive-foreground: #fef2f2;
+  --border: #ffffff1a;
+  --input: #ffffff26;
+  --ring: #a3a3a3;
+  --sidebar: #171717;
+  --sidebar-border: #ffffff1a;
+
+  --app-bg: #1a1a1a;
+  --app-topbar: #222124;
+  --app-card: #26252a;
+  --app-card-hover: #2d2d31;
+  --app-menu: #26252a;
+  --app-menu-hover: #2d2d31;
+  --app-modal: #1b1b20;
+  --app-modal-footer: #141417;
+  --app-input: #141417;
+  --app-bubble: #3e3f3f;
+  --app-share: #202a30;
+}
+
+@theme inline {
+  --font-sans: var(--font-sora), Arial, sans-serif;
+  --font-inter: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --color-fathom: var(--accent-fathom);
+  --color-fathom-warn: var(--fathom-warn);
+  --color-off-white: var(--off-white);
+  --color-off-black: var(--off-black);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-yellow: var(--brand-yellow);
+
+  --color-app-bg: var(--app-bg);
+  --color-app-topbar: var(--app-topbar);
+  --color-app-card: var(--app-card);
+  --color-app-card-hover: var(--app-card-hover);
+  --color-app-menu: var(--app-menu);
+  --color-app-menu-hover: var(--app-menu-hover);
+  --color-app-modal: var(--app-modal);
+  --color-app-modal-footer: var(--app-modal-footer);
+  --color-app-input: var(--app-input);
+  --color-app-bubble: var(--app-bubble);
+  --color-app-share: var(--app-share);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --text-tiny: 0.625rem;
+  --text-tiny--line-height: 1rem;
+
+  /* marketing fluid type (Webflow clamps, 20rem→120rem viewport) */
+  --text-h1-fluid: clamp(3.5rem, 3.1rem + 2vw, 5.5rem);
+  --text-h2-fluid: clamp(2.5rem, 2.2rem + 1.5vw, 4rem);
+  --text-h3-fluid: clamp(2rem, 1.8rem + 1vw, 3rem);
+  --text-h4-fluid: clamp(1.25rem, 1.15rem + 0.5vw, 1.75rem);
+  --text-p-large: clamp(1.25rem, 1.1rem + 0.75vw, 2rem);
+  --text-p-regular: clamp(1rem, 0.975rem + 0.125vw, 1.125rem);
+  --text-p-small: clamp(0.725rem, 0.67rem + 0.275vw, 1rem);
+
+  --ease-fathom: cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-in: fade-in 150ms var(--ease-fathom);
+  --animate-pop-in: pop-in 150ms var(--ease-fathom);
+  --animate-slide-up: slide-up 200ms var(--ease-fathom);
+  --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 1; }
+  }
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+  button, [role="button"] {
+    cursor: pointer;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--accent-fathom) 35%, transparent);
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, currentColor 20%, transparent) transparent;
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .text-balance { text-wrap: balance; }
+  .gradient-text-warm {
+    background-image: linear-gradient(to right, #ea580c, #fef08a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
