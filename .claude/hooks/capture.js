@@ -126,7 +126,7 @@ function main() {
   fs.mkdirSync(dir, { recursive: true });
 
   let file = findSessionFile(dir, sessionId);
-  let body = file ? fs.readFileSync(file, 'utf8') : '';
+  let body = file ? fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') : '';
 
   if (!file) {
     // First event of this session: create the file.
