@@ -161,7 +161,8 @@ function main() {
     const model = respModel || latestModel(entries) || PENDING_MODEL;
     const prompts = (rest.match(/\[LOG_ENTRY type=PROMPT /g) || []).length;
     const responses = (rest.match(/\[LOG_ENTRY type=RESPONSE /g) || []).length;
-    const num = Math.max(prompts, responses + 1);
+    // A response answers the latest prompt; fall back to sequential when no prompt was captured.
+    const num = prompts > 0 ? prompts : responses + 1;
     // Backfill a model that was unknowable at prompt time (first prompt of a session).
     if (model !== PENDING_MODEL) rest = rest.split(`model: ${PENDING_MODEL}`).join(`model: ${model}`);
     rest += `\n[LOG_ENTRY type=RESPONSE num=${num} session=${shortId}]\ntimestamp: ${nowIso}\nmodel: ${model}\n\n${text}\n\n`;
