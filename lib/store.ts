@@ -22,7 +22,6 @@ import { uid } from "./utils";
 
 export type AutoRecord = "all" | "external" | "internal" | "none";
 export type AutoShare = "summary_recording" | "summary" | "nothing";
-export type Theme = "dark" | "light";
 
 export interface Settings {
   autoRecord: AutoRecord;
@@ -47,7 +46,6 @@ export interface Settings {
   desktopApp: boolean;
   zoomApp: boolean;
   chromeExtension: boolean;
-  theme: Theme;
   /** custom instructions per template id (Customize modal) */
   templateInstructions: Record<string, string>;
   webhooks: { id: string; url: string; scopes: string[]; events: string[] }[];
@@ -91,7 +89,6 @@ const defaultSettings: Settings = {
   desktopApp: true,
   zoomApp: true,
   chromeExtension: false,
-  theme: "dark",
   templateInstructions: {},
   webhooks: [{ id: "wh_1", url: "https://example.com", scopes: ["My Recordings", "My Team-Shared Recordings"], events: ["Summary", "Action items"] }],
   orgAutoCapture: { external: "on", internal: "off", unscheduled: "optional" },
@@ -180,6 +177,9 @@ interface AppState {
   setSeenTutorial: () => void;
   resetAll: () => void;
 }
+
+/** Bump whenever the seed data in data/ changes shape or content. */
+const STORE_VERSION = 3;
 
 const initial = () => ({
   meetings: MEETINGS,
@@ -404,8 +404,12 @@ export const useAppStore = create<AppState>()(
       resetAll: () => set(initial()),
     }),
     {
-      name: "fathom-clone-v1",
+      name: "fathom-clone",
+      version: STORE_VERSION,
       storage: createJSONStorage(() => localStorage),
+      // Seed data lives in code; when it changes we bump STORE_VERSION and drop
+      // the stale snapshot rather than trying to merge it.
+      migrate: (persisted, version) => (version === STORE_VERSION ? (persisted as AppState) : (initial() as unknown as AppState)),
       partialize: (s) => ({
         meetings: s.meetings,
         folders: s.folders,
@@ -425,14 +429,9 @@ export const useAppStore = create<AppState>()(
   ),
 );
 
-/** Hydration-safe selector: returns undefined until the persisted store has loaded on the client. */
-import { useEffect, useState } from "react";
+/** True only after the client has mounted (server render and hydration see false). */
+import { useSyncExternalStore } from "react";
+const noopSubscribe = () => () => {};
 export function useHydrated() {
-  const [h, setH] = useState(false);
-  useEffect(() => {
-    // zustand persist hydrates synchronously from localStorage on first client render,
-    // but the server render used defaults, so gate on mount to avoid mismatches.
-    setH(true);
-  }, []);
-  return h;
+  return useSyncExternalStore(noopSubscribe, () => true, () => false);
 }

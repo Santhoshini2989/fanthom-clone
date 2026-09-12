@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
 import { TopBar } from "./top-bar";
 import { DashboardTabs } from "./dashboard-tabs";
-import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /**
  * Authenticated app frame: top bar, optional library tabs, page body on the
- * #1a1a1a canvas. Applies the persisted theme class to <html>.
+ * #1a1a1a canvas. The product is dark-only in every observed screenshot, so
+ * no theme switch is exposed (light tokens exist in globals.css for parity
+ * with the real stylesheet).
  */
 export function AppShell({
   children,
@@ -19,13 +19,6 @@ export function AppShell({
   tabs?: boolean;
   className?: string;
 }) {
-  const theme = useAppStore((s) => s.settings.theme);
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle("dark", theme === "dark");
-    root.classList.toggle("light", theme === "light");
-  }, [theme]);
-
   return (
     <div className="flex min-h-screen flex-col bg-app-bg text-off-white">
       <TopBar />

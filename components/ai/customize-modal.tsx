@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
@@ -23,10 +23,8 @@ export function CustomizeTemplateModal({
   initial?: string;
   onRegenerate: (instruction: string) => void;
 }) {
+  // Remounted by the parent (keyed on template + open) so the draft resets per session.
   const [text, setText] = useState(initial ?? "");
-  useEffect(() => {
-    if (open) setText(initial ?? "");
-  }, [open, initial]);
   const t = templateById(templateId);
 
   return (

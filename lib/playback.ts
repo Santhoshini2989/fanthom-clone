@@ -37,8 +37,10 @@ export function usePlayback(duration: number, initialTime = 0): Playback {
   const last = useRef<number>(0);
   const timeRef = useRef(time);
   const rateRef = useRef(rate);
-  timeRef.current = time;
-  rateRef.current = rate;
+  useEffect(() => {
+    timeRef.current = time;
+    rateRef.current = rate;
+  });
 
   useEffect(() => {
     if (!playing) {

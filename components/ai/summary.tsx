@@ -285,6 +285,7 @@ export function SummaryPanel({
       </article>
 
       <CustomizeTemplateModal
+        key={`${templateId}-${customizeOpen}`}
         open={customizeOpen}
         onClose={() => setCustomizeOpen(false)}
         templateId={templateId}

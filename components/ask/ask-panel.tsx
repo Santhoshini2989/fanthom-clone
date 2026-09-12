@@ -44,7 +44,7 @@ export function AskPanel({
   compact?: boolean;
 }) {
   const key = scope === "meeting" ? `m_${meetings[0]?.id}` : "all";
-  const history = useAppStore((s) => s.askHistory[key] ?? []);
+  const history = useAppStore((s) => s.askHistory[key]) ?? EMPTY_HISTORY;
   const pushAsk = useAppStore((s) => s.pushAsk);
   const clearAsk = useAppStore((s) => s.clearAsk);
   const [q, setQ] = useState("");
@@ -66,7 +66,7 @@ export function AskPanel({
       setThinking(false);
       // stash citations on the entry via a parallel map
       citationStore.set(`${key}:${history.length}`, citations);
-    }, 700 + Math.random() * 500);
+    }, 900);
   };
 
   return (
@@ -163,6 +163,8 @@ export function AskPanel({
     </div>
   );
 }
+
+const EMPTY_HISTORY: { q: string; a: string; at?: number }[] = [];
 
 const citationStore = new Map<string, { meetingId: string; at: number; label: string }[]>();
 

@@ -60,7 +60,7 @@ function PricingBody() {
               onClick={() => setAnnual((v) => !v)}
               className={cn("relative h-6 w-11 rounded-full border border-fathom/60 transition-colors", annual ? "bg-fathom" : "bg-white/10")}
             >
-              <span className={cn("absolute top-0.5 size-[18px] rounded-full bg-white shadow transition-transform", annual ? "translate-x-[22px]" : "translate-x-0.5")} />
+              <span className={cn("absolute left-0 top-0.5 size-[18px] rounded-full bg-white shadow transition-transform", annual ? "translate-x-[24px]" : "translate-x-0.5")} />
             </button>
             <span className={cn(annual ? "font-semibold text-off-white" : "text-white/55")}>
               Annually <span className="font-normal text-white/60">(save 25%+)</span>

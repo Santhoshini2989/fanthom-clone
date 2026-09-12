@@ -30,10 +30,13 @@ export function MarketingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
+  // Close menus when the route changes (derived-state pattern instead of an effect).
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
     setMobile(false);
     setOpen(null);
-  }, [pathname]);
+  }
 
   const enter = (id: string) => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);

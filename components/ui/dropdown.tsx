@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useId,
@@ -26,6 +25,7 @@ interface Ctx {
   open: boolean;
   setOpen: (v: boolean) => void;
   triggerRef: React.RefObject<HTMLElement | null>;
+  setTriggerEl: (el: HTMLElement | null) => void;
   id: string;
 }
 
@@ -42,16 +42,16 @@ export function Dropdown({
 }) {
   const [inner, setInner] = useState(false);
   const open = controlled ?? inner;
-  const setOpen = useCallback(
-    (v: boolean) => {
-      setInner(v);
-      onOpenChange?.(v);
-    },
-    [onOpenChange],
-  );
+  const setOpen = (v: boolean) => {
+    setInner(v);
+    onOpenChange?.(v);
+  };
   const triggerRef = useRef<HTMLElement | null>(null);
+  const setTriggerEl = (el: HTMLElement | null) => {
+    triggerRef.current = el;
+  };
   const id = useId();
-  return <DropdownCtx.Provider value={{ open, setOpen, triggerRef, id }}>{children}</DropdownCtx.Provider>;
+  return <DropdownCtx.Provider value={{ open, setOpen, triggerRef, setTriggerEl, id }}>{children}</DropdownCtx.Provider>;
 }
 
 export function DropdownTrigger({
@@ -66,9 +66,7 @@ export function DropdownTrigger({
   const ctx = useContext(DropdownCtx)!;
   const child = children;
   const props = {
-    ref: (el: HTMLElement | null) => {
-      ctx.triggerRef.current = el;
-    },
+    ref: ctx.setTriggerEl,
     "aria-haspopup": "menu" as const,
     "aria-expanded": ctx.open,
     "aria-controls": ctx.id,
@@ -115,7 +113,7 @@ export function DropdownContent({
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number; w?: number; flipped: boolean } | null>(null);
 
-  const place = useCallback(() => {
+  const place = () => {
     const t = ctx.triggerRef.current;
     const el = ref.current;
     if (!t || !el) return;
@@ -131,13 +129,10 @@ export function DropdownContent({
       flipped = true;
     }
     setPos({ top, left, w: width === "trigger" ? r.width : typeof width === "number" ? width : undefined, flipped });
-  }, [align, side, sideOffset, width, ctx.triggerRef]);
+  };
 
   useLayoutEffect(() => {
-    if (!ctx.open) {
-      setPos(null);
-      return;
-    }
+    if (!ctx.open) return;
     place();
     const onScroll = () => place();
     window.addEventListener("resize", onScroll);
@@ -146,7 +141,8 @@ export function DropdownContent({
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("scroll", onScroll, true);
     };
-  }, [ctx.open, place]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx.open, align, side, sideOffset, width]);
 
   useEffect(() => {
     if (!ctx.open) return;

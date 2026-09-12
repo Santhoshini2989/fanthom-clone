@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 type Tab = "summary" | "transcript" | "ask";
+const EMPTY_IDS: string[] = [];
 
 /**
  * The integrated call page body: one playback clock shared by the player,
@@ -40,24 +41,15 @@ export function CallView({
   const { toast } = useToast();
   const addHighlight = useAppStore((s) => s.addHighlight);
   const highlightTypes = useAppStore((s) => s.highlightTypes);
-  const trimmed = useAppStore((s) => s.trimmedSegments[meeting.id] ?? []);
+  const trimmed = useAppStore((s) => s.trimmedSegments[meeting.id]) ?? EMPTY_IDS;
 
-  const initialT = Number(params.get("t") ?? 0) || 0;
-  const initialTab = (params.get("tab") as Tab | null) ?? "summary";
   const clip = params.get("clip");
+  const clipHighlight = clip ? meeting.highlights.find((x) => x.id === clip) : undefined;
+  // ?t= seeks, ?tab= picks a tab, ?clip= opens straight at a highlight (verified: clip share links)
+  const initialT = clipHighlight ? clipHighlight.start : Number(params.get("t") ?? 0) || 0;
+  const requestedTab = (params.get("tab") as Tab | null) ?? (clipHighlight ? "transcript" : "summary");
   const playback = usePlayback(meeting.duration, initialT);
-  const [tab, setTab] = useState<Tab>(["summary", "transcript", "ask"].includes(initialTab) ? initialTab : "summary");
-
-  // ?clip= opens straight at a highlight (verified: clip share links)
-  useEffect(() => {
-    if (!clip) return;
-    const h = meeting.highlights.find((x) => x.id === clip);
-    if (h) {
-      playback.seek(h.start);
-      setTab("transcript");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clip]);
+  const [tab, setTab] = useState<Tab>(["summary", "transcript", "ask"].includes(requestedTab) ? requestedTab : "summary");
 
   // keep ?t out of the URL after first use so refreshes don't jump back
   useEffect(() => {

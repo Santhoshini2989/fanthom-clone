@@ -96,6 +96,7 @@ export function AiSearch({ className, autoFocus }: { className?: string; autoFoc
           placeholder="Search with AI..."
           aria-label="Search with AI"
           role="combobox"
+          aria-controls="ai-search-results"
           aria-expanded={open && q.length > 0}
           className="h-full min-w-0 flex-1 bg-transparent text-[13px] text-off-white placeholder:text-white/45 outline-none"
         />
@@ -104,6 +105,7 @@ export function AiSearch({ className, autoFocus }: { className?: string; autoFoc
 
       {open && q.trim().length >= 2 && (
         <div
+          id="ai-search-results"
           role="listbox"
           className="absolute left-0 right-0 top-full z-[70] mt-1.5 overflow-hidden rounded-xl border border-white/10 bg-app-menu shadow-[0_16px_48px_rgba(0,0,0,0.6)] animate-pop-in"
         >

@@ -10,7 +10,10 @@ import { FathomSpinner } from "@/components/brand/logo";
 export default function MyCallsPage() {
   const hydrated = useHydrated();
   const meetings = useAppStore((s) => s.meetings);
-  const mine = meetings.filter((m) => m.ownerId === CURRENT_USER_ID || m.attendeeIds.includes(CURRENT_USER_ID));
+  // My Calls = recordings you own, attended, or that were shared directly with you
+  const mine = meetings.filter(
+    (m) => m.ownerId === CURRENT_USER_ID || m.attendeeIds.includes(CURRENT_USER_ID) || m.shares.some((s) => s.target === CURRENT_USER_ID),
+  );
 
   return (
     <AppShell tabs>

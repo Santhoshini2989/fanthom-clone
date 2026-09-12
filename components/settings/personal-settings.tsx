@@ -9,11 +9,9 @@ import {
   KeyRound,
   Laptop,
   ListChecks,
-  Moon,
   Plus,
   RotateCcw,
   Sparkles,
-  Sun,
   Trash2,
   Webhook,
   Zap,
@@ -195,18 +193,6 @@ export function PersonalSettings() {
       <SettingSection title="Options">
         <SettingCard title="Auto Request Recording Consent" description="Collect recording consent from attendees in advance via email." control={<Toggle checked={s.autoConsent} onChange={(v) => update({ autoConsent: v })} />} />
         <SettingCard title="Make external meetings visible to your team by default" description="Team plans only. You can change visibility per recording." control={<Toggle checked={s.externalVisibleToTeam} onChange={(v) => update({ externalVisibleToTeam: v })} />} />
-        <SettingCard
-          icon={s.theme === "dark" ? <Moon /> : <Sun />}
-          title="Appearance"
-          description="Switch between the dark and light interface."
-          control={
-            <PillSelect
-              value={s.theme}
-              onChange={(v) => update({ theme: v })}
-              options={[{ value: "dark", label: "Dark", icon: <Moon /> }, { value: "light", label: "Light", icon: <Sun /> }]}
-            />
-          }
-        />
       </SettingSection>
 
       <SettingSection title="Fathom Apps">

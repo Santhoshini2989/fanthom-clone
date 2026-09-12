@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Sparkles } from "lucide-react";
 import type { Meeting } from "@/data/types";
 import { FathomSpinner } from "@/components/brand/logo";
@@ -79,6 +80,7 @@ export function ProcessingState({ meeting }: { meeting: Meeting }) {
 export function FailedState({ meeting }: { meeting: Meeting }) {
   const deleteMeeting = useAppStore((s) => s.deleteMeeting);
   const { toast } = useToast();
+  const router = useRouter();
   return (
     <div className="mx-auto max-w-[720px] px-4 py-16 text-center">
       <span className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-[#f05252]/15 text-[#f05252]">
@@ -99,7 +101,7 @@ export function FailedState({ meeting }: { meeting: Meeting }) {
           onClick={() => {
             deleteMeeting(meeting.id);
             toast("Recording removed");
-            location.href = "/my_calls";
+            router.push("/my_calls");
           }}
         >
           Remove from My Calls

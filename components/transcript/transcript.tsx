@@ -13,6 +13,9 @@ import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Highlighted } from "@/components/search/ai-search";
 
+const EMPTY_IDS: string[] = [];
+const EMPTY_NUMS: number[] = [];
+
 /**
  * Transcript tab (verified): speaker bubbles with the name (and pronouns)
  * under each run, a blue "+" on the left on hover (Action Item / Bookmark /
@@ -36,8 +39,8 @@ export function Transcript({
 }) {
   const highlightTypes = useAppStore((s) => s.highlightTypes);
   const edits = useAppStore((s) => s.transcriptEdits);
-  const trimmed = useAppStore((s) => s.trimmedSegments[meeting.id] ?? []);
-  const bookmarks = useAppStore((s) => s.bookmarks[meeting.id] ?? []);
+  const trimmed = useAppStore((s) => s.trimmedSegments[meeting.id]) ?? EMPTY_IDS;
+  const bookmarks = useAppStore((s) => s.bookmarks[meeting.id]) ?? EMPTY_NUMS;
   const editTranscript = useAppStore((s) => s.editTranscript);
   const trimSegments = useAppStore((s) => s.trimSegments);
   const addBookmark = useAppStore((s) => s.addBookmark);

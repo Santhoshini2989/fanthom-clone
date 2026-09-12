@@ -207,6 +207,7 @@ export const salesCall: Meeting = {
   shares: [
     { id: "sh_sc_1", target: "u_tom", label: "Tom Whitaker", sublabel: "tom@brightline.io", role: "owner", kind: "user" },
     { id: "sh_sc_2", target: "u_hannah", label: "Hannah Okafor", sublabel: "hannah@brightline.io", role: "admin", kind: "user" },
+    { id: "sh_sc_4", target: "u_nancy", label: "Nancy Liang", sublabel: "nancy@brightline.io", role: "standard", kind: "user" },
     { id: "sh_sc_3", target: "grace.holloway@northwindlogistics.com", label: "Grace Holloway", sublabel: "grace.holloway@northwindlogistics.com", role: "limited", kind: "email" },
   ],
   folderId: "f_northwind",

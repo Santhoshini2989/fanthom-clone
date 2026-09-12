@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import { ArrowLeft, Folder } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { LibraryPage } from "@/components/layout/library-page";
@@ -13,7 +14,8 @@ export default function FolderPage() {
   const { id } = useParams<{ id: string }>();
   const hydrated = useHydrated();
   const folder = useAppStore((s) => s.folders.find((f) => f.id === id));
-  const meetings = useAppStore((s) => s.meetings.filter((m) => m.folderId === id));
+  const allMeetings = useAppStore((s) => s.meetings);
+  const meetings = useMemo(() => allMeetings.filter((m) => m.folderId === id), [allMeetings, id]);
 
   return (
     <AppShell tabs>

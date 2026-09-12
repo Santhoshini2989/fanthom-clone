@@ -15,4 +15,8 @@ const eslintConfig = defineConfig([
   ]),
 ]);
 
-export default eslintConfig;
+const config =  eslintConfig;
+
+config.push({ ignores: [".claude/**", ".agent-logs/**", ".next/**"] });
+
+export default config;

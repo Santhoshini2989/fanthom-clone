@@ -110,6 +110,7 @@ export const standup: Meeting = {
   shareAccess: "added",
   shares: [
     { id: "sh_su_1", target: "u_diego", label: "Diego Alvarez", sublabel: "diego@brightline.io", role: "owner", kind: "user" },
+    { id: "sh_su_3", target: "u_nancy", label: "Nancy Liang", sublabel: "nancy@brightline.io", role: "standard", kind: "user" },
     { id: "sh_su_2", target: "t_engineering", label: "Engineering", sublabel: "4 people", role: "standard", kind: "team" },
   ],
   folderId: "f_eng",

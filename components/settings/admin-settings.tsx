@@ -76,7 +76,7 @@ export function OrganizationSettings() {
           <SettingRow label="Unscheduled Meetings" control={<PillSelect value={s.orgAutoCapture.unscheduled} onChange={(v) => setCapture("unscheduled", v)} options={CAPTURE_OPTIONS} className="h-11 text-[17px]" />} />
         </SettingCard>
         <SettingCard icon={<Bot />} title="Single Bot per Meeting" description="Prevent multiple Fathom notetakers from joining the same meeting." control={<Toggle checked={s.singleBot} onChange={(v) => update({ singleBot: v })} />} />
-        <SettingCard icon={<Bot />} title="Bot Name" description={<span>Use <code className="rounded bg-black/40 px-1 font-mono text-[13px]">{"{name}"}</code> to include the user's name, e.g. “{"{name}"}'s Notetaker”.</span>}>
+        <SettingCard icon={<Bot />} title="Bot Name" description={<span>Use <code className="rounded bg-black/40 px-1 font-mono text-[13px]">{"{name}"}</code> to include the user&apos;s name, e.g. “{"{name}"}&apos;s Notetaker”.</span>}>
           <div className="flex gap-2">
             <Input defaultValue="{name}'s Notetaker" aria-label="Organization bot name" className="h-12 text-[17px]" />
             <Button size="lg" onClick={() => toast("Bot name saved")}>Save</Button>
@@ -167,7 +167,7 @@ export function OrganizationSettings() {
         <SettingCard icon={<Trash2 />} title="Disable Recording Deletion" description="Prevent users from deleting recorded meetings" control={<Toggle checked={s.disableDeletion} onChange={(v) => update({ disableDeletion: v })} />} />
         <SettingCard icon={<FilePenLine />} title="Disable Recording Modification" description="Prevent users from editing transcripts or trimming portions of recordings" control={<Toggle checked={s.disableModification} onChange={(v) => update({ disableModification: v })} />} />
         <SettingCard icon={<Bot />} title="Disable Bot-Free Capture" description="Require a visible bot in any meeting that users capture" control={<Toggle checked={s.disableBotFree} onChange={(v) => update({ disableBotFree: v })} />} />
-        <SettingCard icon={<Sparkles />} title="Exclude team data from AI model training" description={<span>Prevent your users' data being used to improve Fathom's proprietary AI models. <a href="https://trust.fathom.video/" target="_blank" rel="noreferrer" className="underline">Learn More</a></span>} control={<Toggle checked={s.excludeTraining} onChange={(v) => update({ excludeTraining: v })} />} />
+        <SettingCard icon={<Sparkles />} title="Exclude team data from AI model training" description={<span>Prevent your users&apos; data being used to improve Fathom’s proprietary AI models. <a href="https://trust.fathom.video/" target="_blank" rel="noreferrer" className="underline">Learn More</a></span>} control={<Toggle checked={s.excludeTraining} onChange={(v) => update({ excludeTraining: v })} />} />
       </SettingSection>
     </div>
   );
@@ -199,7 +199,7 @@ export function TeamSettings() {
         </SettingCard>
       </SettingSection>
       <SettingSection title="Access Controls">
-        <SettingCard icon={<Users />} title="Team Visibility of Meetings" description="Where this team's recordings are visible by default.">
+        <SettingCard icon={<Users />} title="Team Visibility of Meetings" description="Where this team’s recordings are visible by default.">
           {(["external", "internal", "unscheduled"] as const).map((k) => (
             <SettingRow key={k} label={`${k[0]!.toUpperCase()}${k.slice(1)} Meetings`} control={<PillSelect value={get(`vis_${k}`)} onChange={(v) => set(`vis_${k}`, v)} options={vis} className="h-11 text-[17px]" />} />
           ))}
