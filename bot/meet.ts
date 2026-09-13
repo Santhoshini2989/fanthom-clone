@@ -34,6 +34,7 @@ const SEL = {
   asking: ["text=Asking to join", "text=Asking to be let in", "text=You'll join the call when someone lets you in", "text=Someone will let you in soon"],
   ended: ["text=You left the meeting", "text=The call has ended", "text=Rejoin"],
   signIn: ["text=Sign in to join", "text=You must sign in", "text=Sign in with Google"],
+  guestLobby: 'button:has-text("Sign in with your Google account"), a:has-text("Sign in with your Google account")',
 };
 
 type LobbyState = "in_call" | "asking" | "lobby" | "denied" | "no_response" | "sign_in" | "unknown";
@@ -246,8 +247,11 @@ export async function runMeetingJob(meetingId: string, opts: RunOptions) {
       throw new Error(`Could not find the Join / Ask to join button within 45s (is the link valid and the meeting open?)${shot ? ` — screenshot: ${shot}` : ""}`);
     }
 
+    let guest = false;
     if (lobby === "ready") {
       await dismissDialogs(page);
+      guest = await page.locator(SEL.guestLobby).first().isVisible({ timeout: 500 }).catch(() => false);
+      await jobLog(meetingId, "bot", guest ? "Lobby loaded: joining as a guest (bot profile is not signed in)" : "Lobby loaded: joining with the signed-in bot account");
       // Display name (shown to other participants) is only offered for guest joins.
       try {
         const name = page.locator(SEL.nameInput).first();
@@ -295,7 +299,11 @@ export async function runMeetingJob(meetingId: string, opts: RunOptions) {
       }
       if (state === "denied" && deniedStreak >= 2) {
         await snapshot(page, meetingId, "denied");
-        throw new Error(`The meeting host denied the bot's request to join (${detail.replace(/^text=/, "")})`);
+        const text = detail.replace(/^text=/, "");
+        if (guest && /can't join this (video )?call/i.test(text)) {
+          throw new Error("Google Meet refused the anonymous guest: meetings hosted by personal Google accounts require participants to be signed in. Run `npm run bot:login`, sign in with a Google account for the bot, then Retry.");
+        }
+        throw new Error(`Google Meet refused entry: "${text}" (host denied the request, or the bot was removed)`);
       }
       if (state === "sign_in") throw new Error("This meeting requires a signed-in Google account. Run `npm run bot:login` first.");
       if (state === "no_response" || state === "lobby") {
