@@ -19,7 +19,10 @@
     "bot:login": "tsx --env-file-if-exists=.env bot/index.ts --login",
     "process": "tsx --env-file-if-exists=.env scripts/process.ts",
     "dev:all": "concurrently -n web,bot -c cyan,magenta \"npm run dev\" \"npm run bot\"",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "start:cloud": "prisma migrate deploy && next start -p ${PORT:-3000}",
+    "bot:cloud": "tsx bot/index.ts --headless",
+    "build:next": "next build"
   },
   "dependencies": {
     "@google/genai": "^2.22.0",

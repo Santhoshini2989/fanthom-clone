@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+.bot-profile
+.pgdata
+storage
+.agent-logs
+.claude
+docs/*.png
+*.wav
+*.webm
+*.mp3

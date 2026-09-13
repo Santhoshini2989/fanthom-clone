@@ -209,6 +209,27 @@ async function waitForLobby(page: Page, timeoutMs: number) {
   return "timeout" as const;
 }
 
+/**
+ * When WEB_BASE_URL is set the web app runs elsewhere (e.g. Railway) and does
+ * not share this machine's storage folder, so the recording is uploaded to it.
+ * Failure here is logged but does not fail the meeting: transcript and summary
+ * still land in the shared database.
+ */
+async function uploadToWeb(meetingId: string, file: string, mimeType: string, provider: string) {
+  const base = env().WEB_BASE_URL;
+  if (!base) return;
+  try {
+    const form = new FormData();
+    form.append("file", new Blob([fs.readFileSync(file)], { type: mimeType }), path.basename(file));
+    form.append("provider", provider);
+    const res = await fetch(`${base.replace(/\/$/, "")}/api/meetings/${meetingId}/recording`, { method: "POST", body: form });
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    await jobLog(meetingId, "recording", "Recording uploaded to the web app", { web: base });
+  } catch (err) {
+    await jobLog(meetingId, "recording", `Upload to web app failed: ${errorMessage(err)}`, { web: base }, "warn");
+  }
+}
+
 export interface RunOptions {
   headless?: boolean;
   workerId: string;
@@ -400,6 +421,7 @@ export async function runMeetingJob(meetingId: string, opts: RunOptions) {
     const duration = await probeDuration(finalFile);
     await attachRecording(meetingId, { absPath: finalFile, mimeType: mime, duration, provider: result.provider });
     await prisma.meeting.update({ where: { id: meetingId }, data: { endedAt: new Date(), stopRequested: false } });
+    await uploadToWeb(meetingId, finalFile, mime, result.provider);
     await processMeeting(meetingId);
   } catch (err) {
     const msg = errorMessage(err);

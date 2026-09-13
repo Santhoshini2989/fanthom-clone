@@ -21,6 +21,9 @@ const schema = z.object({
   BOT_ALONE_TIMEOUT_SECONDS: z.coerce.number().int().min(10).default(90),
   BOT_MAX_RECORDING_SECONDS: z.coerce.number().int().min(60).default(10800),
   BOT_POLL_MS: z.coerce.number().int().min(500).default(2000),
+  // Set on a bot worker that runs on a different machine than the web app:
+  // finished recordings are uploaded there so playback and clips work.
+  WEB_BASE_URL: z.string().url().optional().or(z.literal("")).default(""),
 });
 
 export type Env = z.infer<typeof schema>;

@@ -4,6 +4,11 @@ A high-fidelity recreation of [Fathom](https://fathom.video) that actually works
 
 No cloud services besides the Gemini API. No Redis, no Docker, no admin installs: PostgreSQL and ffmpeg ship as npm packages.
 
+## Guides
+
+- [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md): step-by-step first run on your machine, from install to a finished summary, with what you should see at each step.
+- [docs/DEPLOY.md](docs/DEPLOY.md): making it live on Railway (recommended, one Dockerfile for web + bot) or Vercel (web only, with its limits).
+
 ## Quick start
 
 1. **Install** (Node 22.12+):
