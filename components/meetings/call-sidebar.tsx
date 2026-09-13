@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import type { Meeting } from "@/data/types";
 import { userById } from "@/data/users";
-import { useAppStore } from "@/lib/store";
+import { useAppStore, type ApiMeeting } from "@/lib/store";
+import { api } from "@/lib/api";
 import { actionItemsToText, followUpEmail } from "@/lib/summary-text";
 import { cn, copyText, formatClock, formatDate, formatDurationShort } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
@@ -342,7 +343,26 @@ export function CallSidebar({
                         </DropdownTrigger>
                         <DropdownContent align="end" width={250} className="bg-[#121314]">
                           <DropdownItem icon={<Trash2 />} className="text-[15px] font-semibold" onSelect={() => { removeHighlight(meeting.id, h.id); toast("Annotation deleted"); }}>Delete Annotation</DropdownItem>
-                          <DropdownItem icon={<Download />} className="text-[15px] font-semibold" onSelect={() => toast("Preparing clip (mp4)…", "info")}>Download Video Clip (mp4)</DropdownItem>
+                          <DropdownItem
+                            icon={<Download />}
+                            className="text-[15px] font-semibold"
+                            onSelect={async () => {
+                              if (!(meeting as ApiMeeting).db?.hasRecording) {
+                                toast("This meeting has no recording file to clip", "info");
+                                return;
+                              }
+                              toast("Preparing clip…", "info");
+                              try {
+                                const clip = await api.post<{ id: string; status: string; error?: string | null }>(`/api/meetings/${meeting.id}/clips`, { start: h.start, end: h.end, title: h.title, highlightId: h.id });
+                                if (clip.status !== "READY") throw new Error(clip.error ?? "Clip failed");
+                                window.open(`/api/clips/${clip.id}/file`, "_blank");
+                              } catch (e) {
+                                toast(e instanceof Error ? e.message : "Clip failed", "error");
+                              }
+                            }}
+                          >
+                            Download Audio Clip
+                          </DropdownItem>
                           {playlists.map((p) => (
                             <DropdownItem key={p.id} icon={<ListPlus />} className="text-[15px] font-semibold" onSelect={() => { addClipToPlaylist(p.id, meeting.id, h.id); toast(`Added to ${p.name}`); }}>
                               Add to {p.name}

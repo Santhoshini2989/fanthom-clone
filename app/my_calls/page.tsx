@@ -3,12 +3,14 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { LibraryPage } from "@/components/layout/library-page";
 import { MeetingGrid } from "@/components/meetings/meeting-grid";
-import { useAppStore, useHydrated } from "@/lib/store";
+import { useActiveMeetingsPolling, useAppStore, useHydrated } from "@/lib/store";
+import { RecordMeetingButton } from "@/components/meetings/record-meeting";
 import { CURRENT_USER_ID } from "@/data/users";
 import { FathomSpinner } from "@/components/brand/logo";
 
 export default function MyCallsPage() {
   const hydrated = useHydrated();
+  useActiveMeetingsPolling();
   const meetings = useAppStore((s) => s.meetings);
   // My Calls = recordings you own, attended, or that were shared directly with you
   const mine = meetings.filter(
@@ -19,7 +21,12 @@ export default function MyCallsPage() {
     <AppShell tabs>
       <LibraryPage askMeetings={mine} askLabel="My Calls">
         {hydrated ? (
-          <MeetingGrid meetings={mine} />
+          <>
+            <div className="mb-4 flex justify-end">
+              <RecordMeetingButton />
+            </div>
+            <MeetingGrid meetings={mine} />
+          </>
         ) : (
           <div className="flex h-64 items-center justify-center">
             <FathomSpinner />

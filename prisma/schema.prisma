@@ -1,0 +1,519 @@
+// Fathom clone — local-first schema. PostgreSQL via Prisma.
+// Meeting is the aggregate root; everything the UI shows hangs off it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- enums
+
+enum MeetingStatus {
+  SCHEDULED
+  BOT_REQUESTED
+  BOT_JOINING
+  RECORDING
+  PROCESSING
+  TRANSCRIBING
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+enum Platform {
+  GOOGLE_MEET
+  ZOOM
+  MICROSOFT_TEAMS
+  SLACK_HUDDLE
+  IN_PERSON
+}
+
+enum Visibility {
+  PRIVATE
+  NO_TEAMS
+  SOME_TEAMS
+  ALL_TEAMS
+}
+
+enum ShareAccess {
+  LINK
+  DOMAIN
+  ADDED
+}
+
+enum AccessRole {
+  OWNER
+  ADMIN
+  STANDARD
+  LIMITED
+}
+
+enum ShareKind {
+  USER
+  TEAM
+  EMAIL
+}
+
+enum RecordingProvider {
+  REAL
+  MOCK
+  IMPORT
+}
+
+enum ItemSource {
+  AI
+  MANUAL
+}
+
+enum HighlightKind {
+  HIGHLIGHT
+  BOOKMARK
+}
+
+enum ClipStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+enum AlertScope {
+  MY_CALLS
+  TEAM_CALLS
+}
+
+enum AlertChannel {
+  EMAIL
+  SLACK
+}
+
+// ---------------------------------------------------------------- people
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String   @unique
+  plan      String   @default("Team")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  teams          Team[]
+  meetings       Meeting[]
+  highlightTypes HighlightType[]
+  folders        Folder[]
+  playlists      Playlist[]
+  alerts         KeywordAlert[]
+}
+
+model User {
+  id          String   @id @default(cuid())
+  workspaceId String?
+  name        String
+  email       String   @unique
+  pronouns    String?
+  title       String?
+  avatarColor String   @default("#525252")
+  isExternal  Boolean  @default(false)
+  settings    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace     Workspace?    @relation(fields: [workspaceId], references: [id])
+  teams         TeamMember[]
+  ownedMeetings Meeting[]     @relation("MeetingOwner")
+  participants  Participant[]
+  actionItems   ActionItem[]  @relation("ActionAssignee")
+  highlights    Highlight[]   @relation("HighlightAuthor")
+  comments      Comment[]
+  folders       Folder[]
+  playlists     Playlist[]
+
+  @@index([workspaceId])
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  createdAt   DateTime @default(now())
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members   TeamMember[]
+  folders   Folder[]
+
+  @@unique([workspaceId, name])
+}
+
+model TeamMember {
+  userId String
+  teamId String
+  role   String @default("member")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([userId, teamId])
+}
+
+// ---------------------------------------------------------------- meetings
+
+model Meeting {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  ownerId       String
+  title         String
+  platform      Platform      @default(GOOGLE_MEET)
+  meetUrl       String?
+  status        MeetingStatus @default(SCHEDULED)
+  processingStep String?      // human readable sub-step, e.g. "chunk 2/3"
+  errorMessage  String?
+  startedAt     DateTime
+  endedAt       DateTime?
+  duration      Int           @default(0) // seconds
+  visibility    Visibility    @default(NO_TEAMS)
+  shareAccess   ShareAccess   @default(ADDED)
+  meetingType   String?
+  dealName      String?
+  crmSynced     String?
+  thumbnailSeed Int           @default(1)
+  folderId      String?
+  // bot job claiming (atomic claim: status BOT_REQUESTED AND botClaimedAt IS NULL)
+  botClaimedAt  DateTime?
+  botClaimedBy  String?
+  stopRequested Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner        User             @relation("MeetingOwner", fields: [ownerId], references: [id])
+  folder       Folder?          @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  participants Participant[]
+  recording    Recording?
+  transcript   Transcript?
+  summaries    MeetingSummary[]
+  topics       Topic[]
+  decisions    Decision[]
+  actionItems  ActionItem[]
+  highlights   Highlight[]
+  clips        Clip[]
+  questions    Question[]
+  comments     Comment[]
+  shares       Share[]
+  jobEvents    JobEvent[]
+
+  @@index([workspaceId, startedAt])
+  @@index([status])
+  @@index([ownerId])
+}
+
+model Participant {
+  id        String  @id @default(cuid())
+  meetingId String
+  userId    String?
+  name      String
+  email     String?
+  isHost    Boolean @default(false)
+  isExternal Boolean @default(false)
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([meetingId])
+  @@index([userId])
+}
+
+model Recording {
+  id         String            @id @default(cuid())
+  meetingId  String            @unique
+  filePath   String            // relative to STORAGE_DIR
+  mimeType   String
+  duration   Float             @default(0) // seconds
+  size       Int               @default(0)
+  sampleRate Int?
+  channels   Int?
+  provider   RecordingProvider @default(REAL)
+  createdAt  DateTime          @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+model Transcript {
+  id        String   @id @default(cuid())
+  meetingId String   @unique
+  language  String   @default("en")
+  model     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meeting  Meeting             @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  speakers Speaker[]
+  segments TranscriptSegment[]
+}
+
+model Speaker {
+  id           String  @id @default(cuid())
+  transcriptId String
+  label        String  // diarization label, e.g. "speaker_1"
+  name         String
+  pronouns     String?
+  color        String  @default("#00beff")
+  participantId String?
+
+  transcript Transcript          @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  segments   TranscriptSegment[]
+
+  @@unique([transcriptId, label])
+}
+
+model TranscriptSegment {
+  id           String  @id @default(cuid())
+  transcriptId String
+  speakerId    String
+  index        Int
+  start        Float   // seconds
+  end          Float
+  text         String
+  trimmed      Boolean @default(false)
+
+  transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  speaker    Speaker    @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+
+  @@index([transcriptId, start])
+  @@index([transcriptId, index])
+}
+
+// ---------------------------------------------------------------- intelligence
+
+model MeetingSummary {
+  id         String   @id @default(cuid())
+  meetingId  String
+  templateId String   @default("general")
+  language   String   @default("en")
+  sections   Json     // SummarySection[] as rendered by the UI
+  model      String?
+  customized Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, templateId, language])
+}
+
+model Topic {
+  id        String @id @default(cuid())
+  meetingId String
+  order     Int
+  title     String
+  bullets   Json   // { text, at? }[]
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId, order])
+}
+
+model Decision {
+  id        String @id @default(cuid())
+  meetingId String
+  order     Int
+  text      String
+  at        Float?
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId, order])
+}
+
+model ActionItem {
+  id           String     @id @default(cuid())
+  meetingId    String
+  order        Int        @default(0)
+  text         String
+  assigneeId   String?
+  assigneeName String?
+  dueDate      String?
+  at           Float?
+  done         Boolean    @default(false)
+  source       ItemSource @default(AI)
+  isFollowUp   Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  meeting  Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  assignee User?   @relation("ActionAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@index([meetingId])
+}
+
+model HighlightType {
+  id          String  @id @default(cuid())
+  workspaceId String
+  key         String  // stable key used by the UI, e.g. "highlight"
+  name        String
+  color       String
+  builtIn     Boolean @default(false)
+  order       Int     @default(0)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, key])
+}
+
+model Highlight {
+  id          String        @id @default(cuid())
+  meetingId   String
+  typeKey     String        @default("highlight")
+  kind        HighlightKind @default(HIGHLIGHT)
+  start       Float
+  end         Float
+  title       String
+  text        String?
+  reason      String?
+  segmentIds  Json?
+  createdById String?
+  source      ItemSource    @default(MANUAL)
+  createdAt   DateTime      @default(now())
+
+  meeting   Meeting        @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  createdBy User?          @relation("HighlightAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  clips     Clip[]
+  playlists PlaylistClip[]
+
+  @@index([meetingId, start])
+}
+
+model Clip {
+  id          String     @id @default(cuid())
+  meetingId   String
+  highlightId String?
+  title       String
+  start       Float
+  end         Float
+  filePath    String?
+  mimeType    String?
+  status      ClipStatus @default(PENDING)
+  error       String?
+  createdAt   DateTime   @default(now())
+
+  meeting   Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  highlight Highlight? @relation(fields: [highlightId], references: [id], onDelete: SetNull)
+
+  @@index([meetingId])
+}
+
+model Question {
+  id        String @id @default(cuid())
+  meetingId String
+  text      String
+  at        Float
+  askedBy   String?
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  meetingId String
+  authorId  String
+  text      String
+  at        Float?
+  createdAt DateTime @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+}
+
+model Share {
+  id        String     @id @default(cuid())
+  meetingId String
+  kind      ShareKind
+  target    String     // user id, team id, or email
+  label     String
+  sublabel  String     @default("")
+  role      AccessRole @default(STANDARD)
+  createdAt DateTime   @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, target])
+}
+
+// ---------------------------------------------------------------- library
+
+model Folder {
+  id          String   @id @default(cuid())
+  workspaceId String
+  ownerId     String
+  teamId      String?
+  name        String
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner     User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  team      Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  meetings  Meeting[]
+
+  @@index([workspaceId])
+}
+
+model Playlist {
+  id          String   @id @default(cuid())
+  workspaceId String
+  ownerId     String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  workspace Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  clips     PlaylistClip[]
+
+  @@index([workspaceId])
+}
+
+model PlaylistClip {
+  playlistId  String
+  highlightId String
+  order       Int    @default(0)
+
+  playlist  Playlist  @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  highlight Highlight @relation(fields: [highlightId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, highlightId])
+}
+
+model KeywordAlert {
+  id          String       @id @default(cuid())
+  workspaceId String
+  keyword     String
+  scope       AlertScope   @default(TEAM_CALLS)
+  notify      AlertChannel @default(EMAIL)
+  createdAt   DateTime     @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+// ---------------------------------------------------------------- pipeline log
+
+model JobEvent {
+  id        String   @id @default(cuid())
+  meetingId String
+  stage     String   // bot | recording | transcription | analysis | db
+  level     String   @default("info")
+  message   String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId, createdAt])
+}

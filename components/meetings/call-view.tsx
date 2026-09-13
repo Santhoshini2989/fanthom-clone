@@ -48,7 +48,8 @@ export function CallView({
   // ?t= seeks, ?tab= picks a tab, ?clip= opens straight at a highlight (verified: clip share links)
   const initialT = clipHighlight ? clipHighlight.start : Number(params.get("t") ?? 0) || 0;
   const requestedTab = (params.get("tab") as Tab | null) ?? (clipHighlight ? "transcript" : "summary");
-  const playback = usePlayback(meeting.duration, initialT);
+  const hasRecording = !!(meeting as { db?: { hasRecording?: boolean } }).db?.hasRecording;
+  const playback = usePlayback(meeting.duration, initialT, hasRecording ? `/api/recordings/${meeting.id}` : null);
   const [tab, setTab] = useState<Tab>(["summary", "transcript", "ask"].includes(requestedTab) ? requestedTab : "summary");
 
   // keep ?t out of the URL after first use so refreshes don't jump back

@@ -6,6 +6,7 @@ import { ArrowUp, Clock3, Sparkles, Trash2 } from "lucide-react";
 import type { Meeting } from "@/data/types";
 import { askFathom } from "@/lib/search";
 import { useAppStore } from "@/lib/store";
+import { api } from "@/lib/api";
 import { cn, formatClock } from "@/lib/utils";
 
 export const SUGGESTED_PROMPTS: Record<string, string[]> = {
@@ -47,6 +48,7 @@ export function AskPanel({
   const history = useAppStore((s) => s.askHistory[key]) ?? EMPTY_HISTORY;
   const pushAsk = useAppStore((s) => s.pushAsk);
   const clearAsk = useAppStore((s) => s.clearAsk);
+  const gemini = useAppStore((s) => s.capabilities.gemini);
   const [q, setQ] = useState("");
   const [thinking, setThinking] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
@@ -60,13 +62,26 @@ export function AskPanel({
     if (!question || thinking) return;
     setQ("");
     setThinking(true);
-    window.setTimeout(() => {
-      const { answer, citations } = askFathom(meetings, question, scope);
-      pushAsk(key, { q: question, a: answer, at: citations[0]?.at });
+    const finish = (answer: string, citations: { meetingId: string; at: number; label: string }[]) => {
+      pushAsk(key, { q: question, a: answer, at: citations[0]?.at, citations });
       setThinking(false);
       // stash citations on the entry via a parallel map
       citationStore.set(`${key}:${history.length}`, citations);
-    }, 900);
+    };
+    const local = () => {
+      const { answer, citations } = askFathom(meetings, question, scope);
+      finish(answer, citations);
+    };
+    if (!gemini) {
+      window.setTimeout(local, 900);
+      return;
+    }
+    // Real answer from Gemini over the stored transcripts (single meeting or the whole library).
+    const req =
+      scope === "meeting" && meetings[0]
+        ? api.post<{ answer: string; citations: { meetingId: string; at: number; label: string }[] }>(`/api/meetings/${meetings[0].id}/ask`, { question })
+        : api.post<{ answer: string; citations: { meetingId: string; at: number; label: string }[] }>("/api/ask", { question, meetingIds: meetings.length <= 6 ? meetings.map((m) => m.id) : undefined });
+    req.then((r) => finish(r.answer, r.citations ?? [])).catch(local);
   };
 
   return (

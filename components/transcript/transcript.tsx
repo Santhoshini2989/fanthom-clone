@@ -284,7 +284,7 @@ export function Transcript({
           <Button
             variant="cyan"
             onClick={() => {
-              if (editing) editTranscript(editing.id, { text: editText.trim() });
+              if (editing) void editTranscript(meeting.id, editing.id, { text: editText.trim() });
               setEditing(null);
               toast("Transcript updated");
             }}
@@ -302,7 +302,7 @@ export function Transcript({
               key={s.id}
               type="button"
               onClick={() => {
-                if (changingSpeaker) editTranscript(changingSpeaker.id, { speakerId: s.id });
+                if (changingSpeaker) void editTranscript(meeting.id, changingSpeaker.id, { speakerId: s.id });
                 setChangingSpeaker(null);
                 toast(`Speaker changed to ${s.name}`);
               }}

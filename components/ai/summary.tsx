@@ -68,6 +68,9 @@ export function SummaryPanel({
   const markCustomized = useAppStore((s) => s.markSummaryCustomized);
   const clearCustomized = useAppStore((s) => s.clearSummaryCustomized);
   const updateSettings = useAppStore((s) => s.updateSettings);
+  const regenerateSummary = useAppStore((s) => s.regenerateSummary);
+  const gemini = useAppStore((s) => s.capabilities.gemini);
+  const hasTranscript = meeting.transcript.length > 0;
   const { toast } = useToast();
 
   const available = Object.keys(meeting.summaries);
@@ -112,6 +115,13 @@ export function SummaryPanel({
     setTemplateInstruction(templateId, instruction);
     setRegenerating(true);
     setApplied(false);
+    if (gemini && hasTranscript) {
+      regenerateSummary(meeting.id, templateId, { instructions: instruction, language: prefs?.language })
+        .then(() => markCustomized(meeting.id, templateId))
+        .catch((e: unknown) => toast(e instanceof Error ? e.message : "Could not regenerate the summary", "error"))
+        .finally(() => setRegenerating(false));
+      return;
+    }
     window.setTimeout(() => {
       markCustomized(meeting.id, templateId);
       setRegenerating(false);

@@ -36,7 +36,7 @@ export function MeetingCard({ meeting, showOwner }: { meeting: Meeting; showOwne
             <VisibilityBadge visibility={meeting.visibility} />
           </div>
           <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[11px] font-medium leading-4 text-white/90">
-            {meeting.status === "ready" ? formatDurationShort(meeting.duration) : meeting.status === "processing" ? "Processing" : "Failed"}
+            {meeting.status === "ready" ? formatDurationShort(meeting.duration) : meeting.status === "processing" ? "Processing" : meeting.status === "recording" ? "Live" : meeting.status === "scheduled" ? "Scheduled" : "Failed"}
           </span>
           {meeting.status === "processing" && (
             <span className="absolute inset-0 flex items-center justify-center rounded-md bg-black/50">

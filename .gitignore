@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local-first runtime data (never commit)
+.env
+.env.*.local
+.bot-profile/
+.pgdata/
+storage/
+!storage/.gitkeep
+*.wav
+*.webm
+*.mp3
+
+# keep the documented template
+!.env.example
