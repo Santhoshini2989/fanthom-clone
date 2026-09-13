@@ -10,7 +10,7 @@ const schema = z.object({
   DATABASE_URL: z.string().default("postgresql://fathom:fathom@127.0.0.1:5433/fathom"),
   GEMINI_API_KEY: z.string().optional().default(""),
   GEMINI_TRANSCRIBE_MODEL: z.string().default("gemini-3.5-transcribe"),
-  GEMINI_ANALYSIS_MODEL: z.string().default("gemini-2.5-flash"),
+  GEMINI_ANALYSIS_MODEL: z.string().default("gemini-3.6-flash"),
   TRANSCRIBE_CHUNK_SECONDS: z.coerce.number().int().min(60).max(3600).default(1500),
   STORAGE_DIR: z.string().default("./storage"),
   BOT_NAME: z.string().default("Fathom Notetaker"),

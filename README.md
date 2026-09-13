@@ -98,7 +98,7 @@ UI (existing Next.js app)  ──fetch──▶  app/api/*  ──▶  server/me
                                                               ▲                              ▲
 bot/index.ts  ─claims BOT_REQUESTED─▶  bot/meet.ts  ─records─┘   server/pipeline/process.ts ─┘
                                         (Playwright)              transcribe (gemini-3.5-transcribe)
-                                                                  analyze   (gemini-2.5-flash, JSON schema)
+                                                                  analyze   (gemini-3.6-flash, JSON schema)
 ```
 
 **Meeting lifecycle** is an explicit state machine (`server/meetings/state.ts`), every transition logged as a `JobEvent`:
@@ -112,7 +112,7 @@ any → FAILED (message stored) → Retry re-enters at BOT_REQUESTED or PROCESSI
 - **Bot** (`bot/meet.ts`): opens the link in the persistent profile, sets its name, mutes mic and camera, clicks *Ask to join* / *Join now*, waits to be admitted (respects denial), records, and leaves on Stop, when alone, when the call ends, or at the cap. It never bypasses Google authentication or meeting admission.
 - **Recording** (`server/recording/provider.ts`): a `RecordingProvider` interface with `LocalTabAudioRecorder` (getDisplayMedia + MediaRecorder inside the Meet tab, chunks streamed to `storage/recordings/<id>.webm`, then converted to 16 kHz WAV) and `MockRecordingProvider`.
 - **Transcription** (`server/ai/transcribe.ts`): `gemini-3.5-transcribe` through the Interactions API with word-level timestamps and speaker labels; words are grouped into segments on speaker change or pauses.
-- **Analysis** (`server/ai/analyze.ts`): `gemini-2.5-flash` with a JSON response schema, validated with zod, one automatic repair pass, timestamps clamped to the recording. The prompt forbids inventing content and separates explicit from implied decisions. Same module powers template summaries (Sales, Q&A, …), user instructions, and Ask Fathom with `[[meeting@seconds]]` citations.
+- **Analysis** (`server/ai/analyze.ts`): `gemini-3.6-flash` with a JSON response schema, validated with zod, one automatic repair pass, timestamps clamped to the recording. The prompt forbids inventing content and separates explicit from implied decisions. Same module powers template summaries (Sales, Q&A, …), user instructions, and Ask Fathom with `[[meeting@seconds]]` citations.
 - **Playback**: the player uses a real `<audio>` element streamed with Range support from `/api/recordings/:id` when a recording exists; seeded demo meetings keep the simulated clock. Transcript, summary bullets, highlights and Ask citations all seek the same clock.
 - **Highlights and clips**: manual highlights are time ranges stored in the DB; *Download Audio Clip* cuts the range with ffmpeg into `storage/clips/`.
 - **Search** (`/api/search`): titles, participants, topics, decisions, action items, highlight text and transcript lines (ILIKE) across the DB.
