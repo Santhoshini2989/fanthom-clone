@@ -1,46 +1,36 @@
+/* eslint-disable @next/next/no-img-element */
 import { cn } from "@/lib/utils";
 
 /**
- * Fathom mark: two cyan diagonal bars with a darker teal tail. Redrawn as an
- * original SVG approximating the public wordmark geometry.
+ * Fathom's own wordmark, served from /public/fathom (downloaded from the
+ * public marketing CDN and the app's sign-in page). The mark alone is the
+ * right-hand group of the wordmark SVG (viewBox cropped to it).
  */
 export function FathomMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 26 26" fill="none" className={cn("size-6", className)} aria-hidden>
-      <path d="M2.5 17.6v5c0 1.3.8 2.5 2 2.9 2.1.7 4-.9 4-2.9v-1.9l-6-3.1Z" fill="#007299" />
-      <path
-        d="M23.3 15.6c-.5 0-.9-.1-1.4-.3L4.2 6.4C2.7 5.7 2 3.9 2.7 2.4 3.4.8 5.3.1 6.8.9l17.7 9c1.5.8 2.2 2.6 1.4 4.2-.5 1-1.6 1.5-2.6 1.5Z"
-        fill="#00BEFF"
-      />
-      <path
-        d="M14.4 20.1c-.5 0-.9-.1-1.4-.3L4.2 15.4c-1.5-.7-2.2-2.5-1.5-4 .7-1.6 2.6-2.2 4.1-1.5l8.8 4.5c1.5.7 2.2 2.5 1.5 4-.5 1.1-1.6 1.7-2.7 1.7Z"
-        fill="#00BEFF"
-      />
+    <svg viewBox="857 0 143 143" fill="none" className={cn("size-6", className)} aria-hidden>
+      <path fill="#007299" d="M857.29,95.62v29.43c0,7.72,4.89,14.71,12.24,17.03,12.49,3.93,23.96-5.29,23.96-17.19v-11.08l-36.2-18.19Z" />
+      <path fill="#00beff" d="M981.98,89.53c-2.72,0-5.48-.61-8.08-1.91l-106.23-53.09c-8.8-4.4-12.89-14.99-8.79-23.93,4.28-9.36,15.42-13.24,24.55-8.68l106.21,53.08c8.91,4.45,12.99,15.6,8.53,24.51-3.17,6.35-9.56,10.02-16.21,10.02Z" />
+      <path fill="#00beff" d="M928.66,116.35c-2.72,0-5.48-.61-8.08-1.91l-52.91-26.44c-8.8-4.4-12.89-14.99-8.79-23.93,4.28-9.36,15.42-13.24,24.56-8.68l52.89,26.43c8.91,4.45,12.99,15.6,8.53,24.51-3.17,6.35-9.56,10.02-16.21,10.02Z" />
     </svg>
   );
 }
 
-/** "FATHOM" wordmark + mark, as used in the app top bar and auth pages. */
-export function FathomWordmark({
-  className,
-  textClassName,
-}: {
-  className?: string;
-  textClassName?: string;
-}) {
+/** App wordmark (sign-in page inline SVG): "FATHOM" letterforms + mark, 1000×143. */
+export function FathomWordmark({ className, textClassName }: { className?: string; textClassName?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <span
-        className={cn(
-          "font-sans text-[19px] font-semibold uppercase leading-none tracking-[0.18em] text-off-white",
-          textClassName,
-        )}
-      >
-        Fathom
-      </span>
-      <FathomMark className="size-[22px]" />
-    </span>
+    <img
+      src="/fathom/app-wordmark.svg"
+      alt="Fathom"
+      className={cn("h-[18px] w-auto", className, textClassName)}
+      draggable={false}
+    />
   );
+}
+
+/** Marketing wordmark (fathom.ai nav), 166×25. */
+export function FathomMarketingLogo({ className }: { className?: string }) {
+  return <img src="/fathom/logo-wordmark.svg" alt="Fathom" className={cn("h-[14px] w-auto", className)} draggable={false} />;
 }
 
 /** Animated loading spinner made from the mark (infinite scroll on My Calls). */

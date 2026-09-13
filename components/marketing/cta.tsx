@@ -1,16 +1,65 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Cyan pill CTA (verified: 56px radius, 16×32 padding, uppercase 17.4px, black text). */
+/**
+ * fathom.ai `.button.grad`: cyan pill (3.5rem radius, 1rem 2rem padding),
+ * uppercase label set in TT Rounds Neue Cond 500, with the gradient sweep
+ * layer that slides across on hover.
+ */
+export function MkButton({
+  children,
+  href,
+  variant = "cyan",
+  className,
+  onClick,
+  type,
+}: {
+  children: React.ReactNode;
+  href?: string;
+  variant?: "cyan" | "yellow" | "pink" | "purple" | "outline";
+  className?: string;
+  onClick?: () => void;
+  type?: "button" | "submit";
+}) {
+  const cls = cn(
+    "mk-btn",
+    variant === "yellow" && "mk-btn--yellow",
+    variant === "pink" && "mk-btn--pink",
+    variant === "purple" && "mk-btn--purple",
+    variant === "outline" && "mk-btn--outline",
+    className,
+  );
+  const inner = (
+    <>
+      <span className="mk-btn__text">{children}</span>
+      <span className="mk-btn__grad" aria-hidden />
+    </>
+  );
+  if (href) {
+    const external = href.startsWith("http");
+    return external ? (
+      <a href={href} target="_blank" rel="noreferrer" className={cls}>
+        {inner}
+      </a>
+    ) : (
+      <Link href={href} className={cls}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button type={type ?? "button"} onClick={onClick} className={cls}>
+      {inner}
+    </button>
+  );
+}
+
+/** Kept for existing imports: same pill without the sweep. */
 export function CtaPill({ children, small, className }: { children: React.ReactNode; small?: boolean; className?: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center justify-center rounded-[56px] bg-fathom font-normal uppercase text-black transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.99]",
-        small ? "px-6 py-3 text-[14px] tracking-[0.01em]" : "px-6 py-3.5 text-[14px] tracking-[0.01em] sm:px-8 sm:py-4 sm:text-[17.4px]",
-        className,
-      )}
-    >
-      {children}
+    <span className={cn("mk-btn", small && "px-6 py-3", className)}>
+      <span className="mk-btn__text">{children}</span>
+      <span className="mk-btn__grad" aria-hidden />
     </span>
   );
 }

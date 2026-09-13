@@ -1,19 +1,20 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
 import { ANNOUNCEMENT, NAV } from "@/data/marketing";
-import { FathomWordmark } from "@/components/brand/logo";
+import { FathomMarketingLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
 /**
- * Marketing header (verified): gradient announcement bar with "SEE WHAT'S NEW"
- * pill and close; then logo, a pill-shaped nav (Overview · Solutions ⌄ ·
- * Integrations ⌄ · Resources ⌄ · Pricing), Book a Demo, Log In, cyan
- * "SIGN UP FREE" pill. Dropdowns open on hover/click. Collapses to a hamburger
- * under 992px (Webflow tablet breakpoint).
+ * fathom.ai header, built from the live DOM: gradient announcement banner
+ * (pink→purple) with the "SEE WHAT'S NEW" pill and the site's close icon;
+ * 88px nav row with the wordmark SVG, a `.glass_wrapper.menu` pill (1px
+ * gradient border, black inner, 24px radius, 0 40px padding, 54px tall)
+ * holding Overview · Solutions ⌄ · Integrations ⌄ · Resources ⌄ · Pricing,
+ * then Book a Demo, Log In, and the cyan "SIGN UP FREE" button.
  */
 export function MarketingNav() {
   const pathname = usePathname();
@@ -30,7 +31,6 @@ export function MarketingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close menus when the route changes (derived-state pattern instead of an effect).
   const [seenPath, setSeenPath] = useState(pathname);
   if (seenPath !== pathname) {
     setSeenPath(pathname);
@@ -49,11 +49,11 @@ export function MarketingNav() {
   return (
     <div className={cn("sticky top-0 z-50 transition-colors duration-200", scrolled ? "bg-black/85 backdrop-blur-md" : "bg-transparent")}>
       {announce && (
-        <div className="relative flex items-center justify-center gap-4 bg-gradient-to-r from-brand-pink via-[#c86bff] to-brand-purple px-12 py-2.5 text-center text-[11px] font-medium uppercase tracking-[0.06em] text-black sm:text-[12px]">
+        <div className="relative flex items-center justify-center gap-6 bg-[linear-gradient(90deg,#ffa8bb,#9600ff)] px-12 py-2.5 text-center font-sans text-[10.5px] font-normal uppercase tracking-[0.06em] text-black sm:text-[12.5px]">
           <span className="text-balance">{ANNOUNCEMENT.text}</span>
           <Link
             href={ANNOUNCEMENT.href}
-            className="hidden shrink-0 rounded-full border border-black/60 bg-black/15 px-4 py-1.5 text-[11px] font-semibold tracking-wide text-black transition-colors hover:bg-black/25 sm:inline-block"
+            className="hidden shrink-0 rounded-full bg-black/25 px-4 py-2 text-[10.5px] font-medium tracking-wide text-black transition-colors hover:bg-black/35 sm:inline-block"
           >
             {ANNOUNCEMENT.cta}
           </Link>
@@ -61,125 +61,123 @@ export function MarketingNav() {
             type="button"
             aria-label="Dismiss announcement"
             onClick={() => setAnnounce(false)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-black/70 hover:bg-black/15 hover:text-black"
+            className="absolute right-4 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full hover:bg-black/15"
           >
-            <X className="size-4" />
+            <img src="/fathom/close-x.svg" alt="" className="size-3" />
           </button>
         </div>
       )}
 
-      <header className="mx-auto flex h-[88px] max-w-[1400px] items-center justify-between px-6 lg:px-11">
+      <header className="mk-container mk-pad flex h-[88px] items-center justify-between">
         <Link href="/" aria-label="Fathom home" className="shrink-0">
-          <FathomWordmark textClassName="text-[19px] tracking-[0.2em]" />
+          <FathomMarketingLogo className="h-[14px]" />
         </Link>
 
-        <nav className="hidden items-center rounded-full border border-white/20 bg-black/40 px-3 py-1.5 lg:flex" aria-label="Primary" onMouseLeave={leave}>
-          {NAV.primary.map((item) =>
-            "items" in item && item.items ? (
-              <div key={item.label} className="relative" onMouseEnter={() => enter(item.label)}>
-                <button
-                  type="button"
-                  aria-haspopup="menu"
-                  aria-expanded={open === item.label}
-                  onClick={() => setOpen(open === item.label ? null : item.label)}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-full px-4 py-2 text-[14px] font-medium tracking-wide text-off-white/90 transition-colors hover:text-white",
-                    open === item.label && "text-white",
+        <div className="mk-glass-wrap hidden !w-auto lg:inline-block" onMouseLeave={leave}>
+          <nav className="mk-glass flex h-[54px] items-center gap-[4rem] px-10" aria-label="Primary">
+            {NAV.primary.map((item) =>
+              "items" in item && item.items ? (
+                <div key={item.label} className="relative" onMouseEnter={() => enter(item.label)}>
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={open === item.label}
+                    onClick={() => setOpen(open === item.label ? null : item.label)}
+                    className={cn("flex items-center gap-2 py-5 text-[13.8px] font-normal leading-none text-off-white transition-colors hover:text-fathom", open === item.label && "text-fathom")}
+                  >
+                    {item.label}
+                    <img src="/fathom/menu-chevron.svg" alt="" className={cn("h-[6px] w-[9px] transition-transform duration-200", open === item.label && "rotate-180")} />
+                  </button>
+                  {open === item.label && (
+                    <div
+                      role="menu"
+                      onMouseEnter={() => enter(item.label)}
+                      className="absolute left-1/2 top-full mt-2 min-w-[240px] -translate-x-1/2 rounded-2xl border border-white/15 bg-black p-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] animate-pop-in"
+                    >
+                      {item.items.map((sub) => (
+                        <Link
+                          key={sub.label}
+                          href={sub.href}
+                          target={"external" in sub && sub.external ? "_blank" : undefined}
+                          role="menuitem"
+                          className="block rounded-xl px-3.5 py-2.5 text-[15px] text-off-white transition-colors hover:bg-white/8 hover:text-fathom"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                      {"footer" in item && item.footer && (
+                        <Link href={item.footer.href} role="menuitem" className="mt-1 block border-t border-white/10 px-3.5 pb-1.5 pt-3 text-[13px] text-fathom hover:underline">
+                          {item.footer.label}
+                        </Link>
+                      )}
+                    </div>
                   )}
+                </div>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href!}
+                  className={cn("py-5 text-[13.8px] font-normal leading-none text-off-white transition-colors hover:text-fathom", pathname === item.href && "text-fathom")}
                 >
                   {item.label}
-                  <ChevronDown className={cn("size-3.5 transition-transform duration-200", open === item.label && "rotate-180")} />
-                </button>
-                {open === item.label && (
-                  <div
-                    role="menu"
-                    onMouseEnter={() => enter(item.label)}
-                    className="absolute left-0 top-full mt-3 min-w-[260px] rounded-2xl border border-white/15 bg-[#0d0d0f] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] animate-pop-in"
-                  >
-                    {item.items.map((sub) => (
-                      <Link
-                        key={sub.label}
-                        href={sub.href}
-                        target={"external" in sub && sub.external ? "_blank" : undefined}
-                        role="menuitem"
-                        className="block rounded-xl px-3.5 py-2.5 transition-colors hover:bg-white/8"
-                      >
-                        <span className="block text-[15px] text-off-white">{sub.label}</span>
-                        {"blurb" in sub && sub.blurb && <span className="block text-[12px] text-white/50">{sub.blurb}</span>}
-                      </Link>
-                    ))}
-                    {"footer" in item && item.footer && (
-                      <Link href={item.footer.href} role="menuitem" className="mt-1 block border-t border-white/10 px-3.5 pb-1.5 pt-3 text-[13px] font-medium text-fathom hover:underline">
-                        {item.footer.label}
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                key={item.label}
-                href={item.href!}
-                className={cn(
-                  "rounded-full px-4 py-2 text-[14px] font-medium tracking-wide text-off-white/90 transition-colors hover:text-white",
-                  pathname === item.href && "text-fathom",
-                )}
-              >
-                {item.label}
-              </Link>
-            ),
-          )}
-        </nav>
+                </Link>
+              ),
+            )}
+          </nav>
+        </div>
 
-        <div className="hidden items-center gap-5 lg:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           {NAV.secondary.map((l) => (
-            <Link key={l.label} href={l.href} className="text-[14px] font-medium tracking-wide text-off-white/90 hover:text-white">
+            <Link key={l.label} href={l.href} className="text-[13.8px] font-normal leading-none text-off-white transition-colors hover:text-fathom">
               {l.label}
             </Link>
           ))}
-          <Link
-            href={NAV.cta.href}
-            className="rounded-full bg-fathom px-6 py-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-black transition-[filter] hover:brightness-110"
-          >
-            {NAV.cta.label}
+          <Link href={NAV.cta.href} className="mk-btn !px-6 !py-3.5">
+            <span className="mk-btn__text !text-[13.8px]">{NAV.cta.label}</span>
+            <span className="mk-btn__grad" aria-hidden />
           </Link>
         </div>
 
-        <button type="button" aria-label="Menu" onClick={() => setMobile((v) => !v)} className="rounded-md p-2 text-off-white lg:hidden">
-          {mobile ? <X className="size-6" /> : <Menu className="size-6" />}
+        <button type="button" aria-label="Menu" onClick={() => setMobile((v) => !v)} className="flex size-10 items-center justify-center text-off-white lg:hidden">
+          <span className="relative block h-[14px] w-6">
+            <span className={cn("absolute left-0 top-0 h-[2px] w-6 bg-current transition-transform", mobile && "translate-y-[6px] rotate-45")} />
+            <span className={cn("absolute left-0 top-[6px] h-[2px] w-6 bg-current transition-opacity", mobile && "opacity-0")} />
+            <span className={cn("absolute left-0 top-[12px] h-[2px] w-6 bg-current transition-transform", mobile && "-translate-y-[6px] -rotate-45")} />
+          </span>
         </button>
       </header>
 
       {mobile && (
-        <div className="border-t border-white/10 bg-black px-6 pb-8 pt-2 lg:hidden animate-slide-up">
+        <div className="min-h-[100dvh] bg-black px-6 pb-10 pt-8 lg:hidden animate-slide-up" style={{ backgroundImage: "url(/fathom/flow-product.svg)", backgroundPosition: "100% 100%", backgroundRepeat: "no-repeat", backgroundSize: "200px 200px" }}>
           {NAV.primary.map((item) =>
             "items" in item && item.items ? (
-              <details key={item.label} className="group border-b border-white/10 py-3">
-                <summary className="flex cursor-pointer list-none items-center justify-between text-[17px] text-off-white">
-                  {item.label} <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+              <details key={item.label} className="group border-b border-white/10 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between text-[24px] text-off-white">
+                  {item.label} <img src="/fathom/menu-chevron.svg" alt="" className="h-[8px] w-[12px] transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-2 flex flex-col">
                   {item.items.map((sub) => (
-                    <Link key={sub.label} href={sub.href} className="py-2 pl-3 text-[15px] text-white/75">
+                    <Link key={sub.label} href={sub.href} className="py-2 pl-3 text-[17px] text-white/75">
                       {sub.label}
                     </Link>
                   ))}
                 </div>
               </details>
             ) : (
-              <Link key={item.label} href={item.href!} className="block border-b border-white/10 py-3 text-[17px] text-off-white">
+              <Link key={item.label} href={item.href!} className="block border-b border-white/10 py-4 text-[24px] text-off-white">
                 {item.label}
               </Link>
             ),
           )}
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-4">
             {NAV.secondary.map((l) => (
-              <Link key={l.label} href={l.href} className="text-[15px] text-off-white/90">
+              <Link key={l.label} href={l.href} className="text-[17px] text-off-white/90">
                 {l.label}
               </Link>
             ))}
-            <Link href={NAV.cta.href} className="mt-2 rounded-full bg-fathom px-6 py-3 text-center text-[13px] font-semibold uppercase tracking-[0.06em] text-black">
-              {NAV.cta.label}
+            <Link href={NAV.cta.href} className="mk-btn mt-2 justify-center">
+              <span className="mk-btn__text">{NAV.cta.label}</span>
+              <span className="mk-btn__grad" aria-hidden />
             </Link>
           </div>
         </div>

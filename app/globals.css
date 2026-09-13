@@ -219,3 +219,85 @@
     color: transparent;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Marketing site (fathom.ai) — fonts and component rules mirrored from the
+   live stylesheet so the pages use Fathom's real assets and geometry.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: "TT Rounds Neue Cond";
+  src: url("/fathom/fonts/TTRoundsNeueCond-Md.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer components {
+  .mk-container { width: 100%; max-width: min(100%, 1500px); margin-inline: auto; }
+  .mk-pad { padding-inline: 56px; }
+  @media (max-width: 767px) { .mk-pad { padding-inline: 20px; } }
+
+  /* .button.grad + .button-text + .button-gradient.color */
+  .mk-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.65rem;
+    overflow: hidden; border-radius: 3.5rem; padding: 1rem 2rem; background-color: var(--accent-fathom); color: #000;
+    text-transform: uppercase; letter-spacing: 0.18px; line-height: 100%; text-decoration: none; white-space: nowrap;
+  }
+  .mk-btn__text {
+    position: relative; z-index: 1; font-family: "TT Rounds Neue Cond", Arial, sans-serif; font-weight: 500; letter-spacing: 0; line-height: 100%;
+    font-size: var(--text-p-regular);
+  }
+  .mk-btn__grad {
+    position: absolute; inset: 0; width: 220%; left: -160%; border-radius: 3.5rem; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background-image: linear-gradient(225deg, var(--accent-fathom), var(--brand-pink) 51%, var(--accent-fathom) 103%);
+  }
+  .mk-btn:hover .mk-btn__grad { transform: translateX(72%); }
+  .mk-btn--yellow { background-color: var(--brand-yellow); }
+  .mk-btn--yellow .mk-btn__grad { background-image: linear-gradient(225deg, var(--brand-yellow), var(--brand-yellow) 26%, rgba(245, 82, 0, 0.4) 51%, var(--brand-yellow) 103%); }
+  .mk-btn--pink { background-color: var(--brand-pink); }
+  .mk-btn--pink .mk-btn__grad { background-image: linear-gradient(225deg, var(--brand-pink), var(--brand-pink) 19%, var(--accent-fathom) 51%, var(--brand-pink) 103%); }
+  .mk-btn--purple { background-color: var(--brand-purple); color: var(--off-white); }
+  .mk-btn--purple .mk-btn__grad { background-image: linear-gradient(225deg, var(--brand-purple), var(--brand-purple) 23%, var(--brand-pink) 51%, var(--brand-purple) 103%); }
+  .mk-btn--outline { background-color: transparent; color: var(--off-white); border: 1px solid rgba(250, 245, 245, 0.4); }
+  .mk-btn--outline .mk-btn__grad { display: none; }
+
+  /* .glass_wrapper (1px gradient border) + .glass (black inner) */
+  .mk-glass-wrap {
+    display: inline-block; width: 100%; padding: 1px; border-radius: 1.5rem; backdrop-filter: blur(5px);
+    background-image: linear-gradient(354deg, #000, #000 3%, #ffffff3d 51%, #000 97%, #000 103%);
+  }
+  .mk-glass { height: 100%; border-radius: 1.5rem; background-color: #000; }
+
+  .mk-gradient-yellow-orange {
+    background-image: linear-gradient(0deg, var(--brand-orange), var(--brand-yellow));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .mk-gradient-pink-purple { background-image: linear-gradient(0deg, var(--brand-purple), var(--brand-pink)); }
+  .mk-gradient-pink-purple-text {
+    background-image: linear-gradient(315deg, var(--brand-purple), var(--brand-pink));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  }
+
+  .mk-h1 { font-size: var(--text-h1-fluid); font-weight: 300; line-height: 1.1; letter-spacing: -2.5px; }
+  .mk-h2 { font-size: var(--text-h2-fluid); font-weight: 300; line-height: 1.1; letter-spacing: -1.92px; }
+  .mk-h3 { font-size: var(--text-h3-fluid); font-weight: 300; line-height: 1.2; letter-spacing: -0.02em; }
+  .mk-h4 { font-size: var(--text-h4-fluid); font-weight: 300; line-height: 1.1; }
+  .mk-p { font-size: var(--text-p-regular); font-weight: 300; line-height: 1.2; letter-spacing: -0.36px; }
+  .mk-p-small { font-size: var(--text-p-small); font-weight: 300; line-height: 1.2; letter-spacing: 0.2px; }
+  .mk-tiny { font-size: 0.8625rem; font-weight: 300; line-height: 1; }
+
+  .mk-marquee { display: flex; width: max-content; animation: mk-marquee 40s linear infinite; }
+  .mk-marquee:hover { animation-play-state: paused; }
+  @keyframes mk-marquee { from { transform: translateX(0); } to { transform: translateX(-33.3333%); } }
+  @media (prefers-reduced-motion: reduce) { .mk-marquee { animation: none; } }
+
+  .mk-stat-num { font-family: "TT Rounds Neue Cond", Arial, sans-serif; font-weight: 500; font-size: var(--text-h4-fluid); line-height: 100%; text-align: center; letter-spacing: 0; }
+
+  .mk-slider-overlay { position: absolute; inset: 0; background-image: linear-gradient(#0000, #000000bf 49%, #000000f7 82%); }
+  .mk-bubble { display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.625rem 1.125rem; border-radius: 1.25rem; background-color: var(--off-white); color: #000; white-space: nowrap; }
+  .mk-grid-canvas {
+    background-image: linear-gradient(rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.07) 1px, transparent 1px);
+    background-size: 92px 92px;
+    mask-image: radial-gradient(ellipse at 50% 60%, #000 30%, transparent 75%);
+  }
+}

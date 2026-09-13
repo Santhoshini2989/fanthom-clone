@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   title: "Fathom AI Notetaker - Never Take Notes Again",
   description:
     "Fathom summarizes your meetings so you can focus on the conversation. Now available bot-free.",
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({
